@@ -8,6 +8,7 @@ Sistema de chamados (ordens de serviço), projeto integrador do curso de Desenvo
 ## Como executar
     dotnet build
     dotnet run --project src/Chamados.Web
+    dotnet test
 
 ## Decisões
 - .NET 10 (LTS) como alvo, com suporte até 14/11/2028.

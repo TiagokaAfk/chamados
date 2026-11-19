@@ -1,0 +1,34 @@
+@base = http://localhost:5080
+
+### Lista todos, ordenados por prioridade
+GET {{base}}/chamados
+
+### Filtro por status
+GET {{base}}/chamados?status=EmAtendimento
+
+### Filtros combinados e busca de texto (título ou descrição)
+GET {{base}}/chamados?prioridadeMinima=Alta&texto=SALA
+
+### Estatísticas
+GET {{base}}/chamados/estatisticas
+
+### Status inválido (esperado: 400)
+GET {{base}}/chamados?status=Xyz
+
+### Inicia atendimento: copie o Id de um chamado Aberto da listagem para a linha @id
+@id = 00000000-0000-0000-0000-000000000000
+
+POST {{base}}/chamados/{{id}}/atendimento
+Content-Type: application/json
+
+{
+  "responsavel": "Elétrica"
+}
+
+### Responsável em branco (esperado: 400)
+POST {{base}}/chamados/{{id}}/atendimento
+Content-Type: application/json
+
+{
+  "responsavel": " "
+}

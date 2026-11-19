@@ -82,6 +82,32 @@ app.MapPost("/chamados/{id:guid}/atendimento", async (
     }
 });
 
+app.MapPost("/chamados/{id:guid}/resolucao", (Guid id, ResolverRequest requisicao, ChamadoServico servico, CancellationToken cancellationToken)
+    => ExecutarTransicaoAsync(() => servico.ResolverAsync(id, requisicao.Solucao, cancellationToken)));
+
+app.MapPost("/chamados/{id:guid}/cancelamento", (Guid id, CancelarRequest requisicao, ChamadoServico servico, CancellationToken cancellationToken)
+    => ExecutarTransicaoAsync(() => servico.CancelarAsync(id, requisicao.Motivo, cancellationToken)));
+
+static async Task<IResult> ExecutarTransicaoAsync(Func<Task<Chamado>> transicao)
+{
+    try
+    {
+        return Results.Ok(ResumoChamado.De(await transicao()));
+    }
+    catch (ChamadoNaoEncontradoException)
+    {
+        return Results.NotFound();
+    }
+    catch (TransicaoInvalidaException ex)
+    {
+        return Results.Conflict(new { erro = ex.Message });
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { erro = ex.Message });
+    }
+}
+
 // Diagnóstico exposto somente em Development.
 if (app.Environment.IsDevelopment())
 {
@@ -95,3 +121,5 @@ if (app.Environment.IsDevelopment())
 app.Run();
 
 public sealed record IniciarAtendimentoRequest(string Responsavel);
+public sealed record ResolverRequest(string Solucao);
+public sealed record CancelarRequest(string Motivo);
